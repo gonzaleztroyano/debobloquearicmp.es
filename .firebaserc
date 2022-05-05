@@ -1,0 +1,5 @@
+{
+  "projects": {
+    "default": "should-i-block-icmp-es"
+  }
+}

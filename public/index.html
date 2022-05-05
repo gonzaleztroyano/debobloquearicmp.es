@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>¿Debo bloquear ICMP?</title>
+
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Font Awesome JS -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <!-- Sidebar Holder -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3 style="text-align: center;">¿Debo bloquear ICMP?</h3>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="#problema">El problema</a>
+                </li>
+                <li>
+                    <a href="#echo-request-reply">Echo Request & Reply</a>
+                </li>
+                <li>
+                    <a href="#fragmentation-needed">Fragmentation Needed</a>
+                </li>
+                <li>
+                    <a href="#time-exceeded">Time Exceeded</a>
+                </li>
+                <li>
+                    <a href="#ndp-slaac">NDP y SLAAC</a>
+                </li>
+                <li>
+                    <a href="#rate-limiting">Rate Limiting</a>
+                </li>
+                <li>
+                    <a href="#lectura">Lectura e investigación</a>
+                </li>
+                <li>
+                    <a href="#licencia">Licencia</a>
+                </li>
+            </ul>
+
+            <ul class="list-unstyled CTAs">
+                <li>
+                    <a href="#" class="download">Ver en GitHub</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content Holder -->
+        <div id="content">
+
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+
+                    <button type="button" id="sidebarCollapse" class="navbar-btn">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                    <h1 style="text-align: center;">¿Debo bloquear ICMP?</h1>
+                </div>
+            </nav>
+            
+            <h1 style="text-align: center;">Respuesta rápida: ¡No!</h1> <br>
+            <h2 id="problema">El problema</h2>
+                <p>Muchos administradores/as de red creen que el protocolo ICMP es un riesgo de seguridad y, por lo tanto, siempre debe bloquearse en el firewall. Es cierto que ICMP tiene algunos problemas de seguridad asociados y que muchos de los tipos ICMP deberían bloquearse. ¡Pero esta no es razón para bloquear todo el tráfico ICMP!</p>
+                <p>Bloquear todo ICMP por algunos problemas sería como quemar nuestra casa porque nos pueden robar.</p>
+                <p>ICMP tiene muchas características importantes. Algunas son útiles para solucionar problemas, mientras que otras son esenciales para que una red funcione correctamente. En esta página veremos los detalles de algunos tipos de ICMP importantes que se deben conocer y considerar para permitir a través de nuestra red.</p>
+            
+            <div class="line"></div>
+
+            <h2 id="echo-request-reply">Echo Request & Reply: <i>el ping de toda la vida</i></h2>
+                <p>Conocido por todos: ping. Es una de las primeras herramientas de solución de problemas que todos aprendemos. Todos hemos hecho un ping a <i>google.com</i> para ver si el problema es nuestro.</p>
+                <p>Sí, si habilitamos todo el ping, significa que nuestro equipo ahora es detectable, Pero ¿no estaba nuestro servidor web ya escuchando en el puerto 80/443? </p>
+                <p>Claro, podemos bloquearlo en nuestro router desde/hacia el exterior. Pero bloquear el tráfico de ping dentro de la red no nos dará mucho, excepto una solución de problemas más difícil. ("¿Puede hacer ping a su puerta de enlace predeterminada?", "No, pero ¡nunca es posuble, así que eso no me dice nada!").</p>
+                <p><b>Recuerda</b> que también podemos permitir el tráfico ping (y un tipo: Request/Reply) en una dirección. Podemos decidir permitir que las <i>Echo Request</i> salgan desde nuestra red a Internet y las <i>Echo Reply</i> de Internet hacia nuestra LAN, pero no al revés.</p>
+                <p>Puedes obtener más incoformación sobre este tema en el <a href="https://datatracker.ietf.org/doc/html/rfc792">RFC792</a>.</p>
+                <div class="line"></div>
+
+            <h2 id="fragmentation-needed">Fragmentation Needed (IPv4) / Packet Too Big (IPv6)</h2>
+                <p>Estos son importantes. Muy importantes. Son un componente esencial en <a href="http://en.wikipedia.org/wiki/Path_MTU_Discovery">Path MTU Discovery</a> (PMTUD), que es una parte esencial de TCP que permite que dos hosts ajusten su valor de <a href="http://en.wikipedia.org/wiki/Maximum_segment_size">Tamaño máximo de segmento</a> (MSS) de TCP a uno que se ajuste a la MTU más pequeña a lo largo de la ruta de enlaces entre los dos anfitriones. Si dos hosts tienen una <a href="http://en.wikipedia.org/wiki/Maximum_transmission_unit">MTU</a> más pequeña que toda la ruta entre ellos, y no tienen forma de descubrirlo, el tráfico se bloquea silenciosamente. En otras palabras: "lo vas a pasar mal".</p>
+                <p>Los paquetes IPv4 con el <a href="http://en.wikipedia.org/wiki/IPv4#Flags">bit de DF</a> establecido (¡casi todos!), o los paquetes IPv6 (recuerda que los enrutadores no fragmentan en IPv6), que son demasiado grandes para que un router los transmita a través de una interfaz, harán que el router descarte el paquete. Este descarte del paquete generará un error ICMP de fragmentación necesaria/paquete demasiado grande de vuelta al origen.</p>
+                <p>Si este error no puede llegar al remitente, entonces el remitente simplemente interpretará la falta de ACK del receptor como congestión/pérdida. Reintentando el envío de nuevo, que por supuesto, los nuevos paquetes también serán rechazados. Este tipo de comportamiento es difícil de solucionar porque todos los protocolos de enlace TCP funcionan bien, ya que estos son paquetes pequeños. Pero luego la sesión parece detenerse tan pronto como se produce una transmisión masiva de datos.</p>
+                <p><a href="https://www.ietf.org/rfc/rfc4821.txt">RFC 4821</a> se desarrolló para ayudar a los hosts a solucionar este problema mediante el descubrimiento de MTU de ruta de capa de paquetización (<i>Packetization Layer Path MTU Discovery</i>, PLPMTUD). Su función es descubirir la MTU de ruta al aumentar gradualmente el MSS para tratar de encontrar un valor adecuado para la ruta. Esto elimina la dependencia de ICMP y está disponible en la mayoría de las <i>stacks</i> de red en caso todos los sistemas operativos, pero no es tan eficiente como aprender directamente cuál debe ser la MTU máxima.</p>
+                <div class="line"></div>
+            
+            <h2 id="time-exceeded"">Time Exceeded</h2>
+                <p>Traceroute es una herramienta muy útil para solucionar problemas de conexiones de red entre dos hosts, detallando cada salto en la ruta. Para ello, envía un paquete con un TTL de 1 para que el primer salto devuelva un mensaje de tiempo excedido (incluida su propia IP de origen), luego envía un paquete con un TTL de 2, y así sucesivamente, para descubrir cada salto: el camino.</p>
+                <p>Si lo has usado alguna vez, estoy seguro de que te habrás encontrado con uno o dos saltos que no se pueden descubrir en medio de la ruta, ¿verdad? O peor aún, no se han podido descubrir ninguno de los saltos.</p>
+                <p>Es muy molesto, ¿verdad? Esto se debe a que la persona que ejecuta esos enrutadores (o su firewall) decidió bloquear los mensajes de ICMP Time Exceeded. No seas ese tipo de persona, ¿vale?</p>
+                <div class="line"></div>
+
+            <h2 id="ndp-slaac">NDP and SLAAC (IPv6)</h2>
+                <p>Mientras que IPv4 usa el Protocolo de resolución de direcciones (<i>Address Resolution Protocol</i>, <a href="http://en.wikipedia.org/wiki/Address_Resolution_Protocol">ARP</a>) para las asignaciones entre las capas 2 y 3 de OSI, IPv6 adopta un enfoque diferente, en forma de Protocolo de descubrimiento de vecinos (<i><a href="http://en.wikipedia.org/wiki/Neighbor_Discovery_Protocol"> Neighbor Discovery Protocol </a></i> ND).</p>
+                <p>NDP proporciona muchas funciones, incluido el descubrimiento de enrutadores, el descubrimiento de prefijos, la resolución de direcciones y muchas más. Además de NDP, <a href="http://en.wikipedia.org/wiki/IPv6_address#Stateless_address_autoconfiguration">StateLess Address AutoConfiguration</a> (SLAAC) permite que un host se configure dinámicamente en la red, similar en concepto a DHCP (aunque DHCPv6 existe para un control más detallado).</p>
+                <p>Estos cinco tipos de ICMP deben estar permitidos dentro de su red para que estas características de IPv6 funcionen correctamente.</p>
+                <div class="line"></div>
+
+            <h2 id="rate-limiting">Rate Limiting</h2>
+                <p>Si bien los mensajes ICMP, como los que se cubren en esta página, pueden ser muy útiles, cabe recordar que generar todos estos mensajes requiere tiempo de CPU en los routers y genera tráfico. ¿Realmente esperamos recibir 1000 pings por segundo a través de nuestro firewall en una situación normal? ¿Se consideraría tráfico legítimo si lo detectáramos? No, probablemente no. Limite la velocidad de todos estos tipos de tráfico ICMP como mejor le parezca para su red; es una buena línea de defensa que no debe ser ignorada.</p>
+                <div class="line"></div>
+
+            <h2 id="lectura">Lee, investiga, comprende</h2>
+                <p>Dado que la discusión sobre "bloquear o no bloquear" para ICMP parece resultar siempre en confusión, ira y desacuerdos fanáticos límite, sigue adelante y lee sobre el tema tu mismo. Dedica tiempo a entenderlo, lo mejor que puedas; hay un montón de enlaces a lo largo de esta página solo. Luego podrás formarte tu propia opinión y tomar una decisión informada sobre lo que es mejor para tu red.</p>
+                <p>Para una comprensión a nivel general de un escenario de red, puede serte útil <a href="https://github.com/gonzaleztroyano/what-happens-when-ES">este repositorio</a> con los detalles de <i>"¿Qué ocurre cuando escribes google.com en tu la barra de direcciones de tu navegador y pulsas Enter?"</i></p>
+                <div class="line"></div>
+            
+            <h3 id="licencia">Disclaimer, Licencia y Agradecimentos</h3>
+                <p>Este trabajo está basado en la página web <a href="https://shouldiblockicmp.com/">shouldiblockicmp.com</a>. El contenido es similar, habiendo sido traducido al castellano desde el inglés. Se han introducido/modificado/eliminado fragmentos para facilitar la lectura y comprensión</p>
+                <p>Esta información se entrega "tal cual", sin poder asumir el autor/es y posibles colaboradores ninguna responsabilidad respecto a la completitud y calidad en tanto a la información.</p>
+                <p>En tanto a la traducción, esta se publica bajo la licencia Creative Commons Atribución 4.0 Internacional (CC BY 4.0). Parte del código HTML de esta página ha sido obtenido desde bootstrapious.com.</p>  
+                <div class="line"></div>
+                
+        </div>
+    </div>
+
+    <!-- jQuery CDN - Slim version (=without AJAX) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <!-- Popper.JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $(this).toggleClass('active');
+            });
+        });
+    </script>
+</body>
+
+</html>
